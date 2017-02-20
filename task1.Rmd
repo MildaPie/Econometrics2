@@ -1,0 +1,66 @@
+---
+title: "task1"
+author: "Milda Pieškutė"
+date: '2017 m vasaris 20 d '
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Note: when generating data use set.seed(student.code) where student.code is your unique student
+code.
+1. Model generation and initial analysis
+1.1 Generate the following models with sample sizes T = 100 and t ∼ W N(0, 1):
+```{r}
+set.seed(1512230)
+T=100
+epsilon<-rnorm(T, 0,1)
+```
+(1) An AR(3) model with φ1 = 0.6, φ2 = 0.8 and φ3 = −0.7;
+```{r}
+AR<-arima.sim(list(order = c(3,0,0), ar = c(0.6, 0.8,-0.7)), n = T)
+```
+(2) An MA(2) model with θ1 = 0.3 and θ2 = 0.6 and mean µ = 2;
+```{r}
+MA <- 2+0.3*epsilon - 0.6 * c(0, epsilon[-T])
+```
+
+(3) An ARMA(1,1) model of the following form: (1 − 0.7L)Yt = 0.7 + (1 − 0.5L)t.
+```{r}
+arma.sim<-arima.sim(model=list(ar=c(.9,-.2),ma=c(-.7,.1)),n=T)
+```
+
+1.2 Plot the sample ACF and PACF for each case - what do they show? What should the theoretical
+ACF and PACF show for each of the mentioned processes?
+
+```{r}
+par(mfrow = c(2,3))
+acf(AR, main = expression(paste(Y[t], " = 0.6", epsilon[t], " + 0.8", epsilon[t-1]," -0.7", epsilon[t-2])))
+acf(MA, main = expression(paste(Y[t], " = 2 +0.3 ", epsilon[t], " + 0.6", epsilon[t-1])))
+acf(arma.sim, main = expression(paste(Y[t], " = 2 + ", epsilon[t], " + 0.5", epsilon[t-1]))) # Taisyti
+
+pacf(AR, main = expression(paste(Y[t], " = 0.6", epsilon[t], " + 0.8", epsilon[t-1]," -0.7", epsilon[t-2])))
+pacf(MA, main = expression(paste(Y[t], " = 2 +0.3 ", epsilon[t], " + 0.6", epsilon[t-1])))
+pacf(arma.sim, main = expression(paste(Y[t], " = 2 + ", epsilon[t], " + 0.5", epsilon[t-1]))) # Taisyti
+
+```
+
+1.3 Is the AR(3) process stationary? Is the MA(2) process invertible? What about the ARMA(1,1) process?
+Explain your answers.
+2. Model estimation
+2.1 Estimate the models from the previous part (note: use Arima from the forecast package). What are
+the coefficient values of your estimated models? Are they close to the actual values?
+2.2 Use the auto.arima function (from the forecast package) to fit the best model for each series. Are the
+models and their coefficients estimated by auto.arima the same as the ones used to generate the data?
+2.3 Using the estimated models from auto.arima, forecast each model 20 periods ahead. What can you say
+about the forecasts, i.e. how do the forecast values change as the forecast period increases?
+3. Residual tests
+Remember that the previous models were generated with shocks t ∼ W N(0, 1).
+3.1 Plot the residuals of your estimated models from the auto.arima. Do their time series plots look like
+WN?
+3.2 Plot the sample ACF and PACF of your model residuals - do they look like WN?
+3.3 Perform the Ljung-Box Test on the residuals of your models. Are the residuals WN in all cases?
